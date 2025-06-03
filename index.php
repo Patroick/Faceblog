@@ -20,6 +20,7 @@ $sp->register(\Application\RegisterCommand::class);
 $sp->register(\Application\MyBlogQuery::class);
 $sp->register(\Application\CreateBlogEntryCommand::class);
 $sp->register(\Application\PeopleQuery::class);
+$sp->register(\Application\UserBlogQuery::class);
 
 // --- Services
 $sp->register(\Application\Services\UserService::class);

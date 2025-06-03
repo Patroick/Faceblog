@@ -19,7 +19,9 @@
         <?php foreach($data['people'] as $person): ?>
             <div class="card mb-3">
                 <div class="card-body">
-                    <h5 class="card-title"><?php $htmlOut($person->getDisplayName()); ?></h5>
+                    <h5 class="card-title">
+                        <?php $link($person->getDisplayName(), 'Blog', 'User', ['id' => $person->getId()]); ?>
+                    </h5>
                     <p class="card-text text-muted">Mitglied seit: <?php $htmlOut($person->getCreatedAt()); ?></p>
                 </div>
             </div>

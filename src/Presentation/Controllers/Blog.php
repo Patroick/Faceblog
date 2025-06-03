@@ -8,6 +8,7 @@ final class Blog extends \Presentation\MVC\Controller
         private \Application\MyBlogQuery $myBlogQuery,
         private \Application\CreateBlogEntryCommand $createBlogEntryCommand,
         private \Application\SignedInUserQuery $signedInUserQuery,
+        private \Application\UserBlogQuery $userBlogQuery,
     ) {}
 
     public function GET_Index(): \Presentation\MVC\ActionResult
@@ -18,6 +19,19 @@ final class Blog extends \Presentation\MVC\Controller
         return $this->view('blog/index', [
             'user' => $user,
             'blogEntries' => $blogEntries,
+        ]);
+    }
+
+    public function GET_User(): \Presentation\MVC\ActionResult
+    {
+        $currentUser = $this->signedInUserQuery->execute();
+        $userId = (int)$this->getParam('id');
+        $result = $this->userBlogQuery->execute($userId);
+        
+        return $this->view('blog/user', [
+            'user' => $currentUser,
+            'blogUser' => $result['user'] ?? null,
+            'blogEntries' => $result['blogEntries'] ?? [],
         ]);
     }
 
