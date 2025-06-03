@@ -4,8 +4,9 @@ namespace Infrastructure;
 
 use Application\Interfaces\StatisticsRepository;
 use Application\Interfaces\UserRepository;
+use Application\Interfaces\BlogRepository;
 
-final class DatabaseRepository implements StatisticsRepository, UserRepository
+final class DatabaseRepository implements StatisticsRepository, UserRepository, BlogRepository
 {
     public function __construct(
         private string $server,
@@ -116,16 +117,16 @@ final class DatabaseRepository implements StatisticsRepository, UserRepository
     public function getUser(int $userId): ?\Application\Entities\User
     {
         $con = $this->getConnection();
-        $r = $this->executeStatement($con, "SELECT id, username, password_hash FROM users WHERE id = ?",
+        $r = $this->executeStatement($con, "SELECT id, username, display_name, password_hash, created_at FROM users WHERE id = ?",
             function ($s) use ($userId) {
                 $s->bind_param("i", $userId);
             });
         
-        $r->bind_result($id, $username, $passwordHash);
+        $r->bind_result($id, $username, $displayName, $passwordHash, $createdAt);
         $res = null;
         
         if ($r->fetch()) {
-            $res = new \Application\Entities\User($id, $username, $passwordHash);
+            $res = new \Application\Entities\User($id, $username, $passwordHash, $displayName, $createdAt);
         }
 
         $r->close();
@@ -136,20 +137,105 @@ final class DatabaseRepository implements StatisticsRepository, UserRepository
     public function getUserByUserName(string $userName): ?\Application\Entities\User
     {
         $con = $this->getConnection();
-        $r = $this->executeStatement($con, "SELECT id, username, password_hash FROM users WHERE username = ?",
+        $r = $this->executeStatement($con, "SELECT id, username, display_name, password_hash, created_at FROM users WHERE username = ?",
             function ($s) use ($userName) {
                 $s->bind_param("s", $userName);
             });
         
-        $r->bind_result($id, $username, $passwordHash);
+        $r->bind_result($id, $username, $displayName, $passwordHash, $createdAt);
         $res = null;
         
         if ($r->fetch()) {
-            $res = new \Application\Entities\User($id, $username, $passwordHash);
+            $res = new \Application\Entities\User($id, $username, $passwordHash, $displayName, $createdAt);
         }
 
         $r->close();
         $con->close();
         return $res;
+    }
+
+    public function addUser(string $username, string $passwordHash, string $displayName): void
+    {
+        $con = $this->getConnection();
+        $r = $this->executeStatement($con, "INSERT INTO users (username, display_name, password_hash) VALUES (?, ?, ?)",
+            function ($s) use ($username, $passwordHash, $displayName) {
+                $s->bind_param("sss", $username, $displayName, $passwordHash);
+            });
+        
+        $r->close();
+        $con->close();
+    }
+
+    public function isUsernameAvailable(string $username): bool
+    {
+        $con = $this->getConnection();
+        $r = $this->executeStatement($con, "SELECT COUNT(*) as count FROM users WHERE username = ?",
+            function ($s) use ($username) {
+                $s->bind_param("s", $username);
+            });
+        
+        $r->bind_result($count);
+        $result = true;
+        
+        if ($r->fetch()) {
+            $result = (int)$count === 0;
+        }
+
+        $r->close();
+        $con->close();
+        return $result;
+    }
+
+    public function getBlogEntriesByUserId(int $userId): array
+    {
+        $con = $this->getConnection();
+        $r = $this->executeStatement($con, "SELECT id, user_id, subject, content, created_at FROM blog_entries WHERE user_id = ? ORDER BY created_at DESC",
+            function ($s) use ($userId) {
+                $s->bind_param("i", $userId);
+            });
+        
+        $r->bind_result($id, $user_id, $subject, $content, $created_at);
+        $result = [];
+        
+        while ($r->fetch()) {
+            $result[] = new \Application\Entities\BlogEntry($id, $user_id, $subject, $content, $created_at);
+        }
+
+        $r->close();
+        $con->close();
+        return $result;
+    }
+
+    public function addBlogEntry(int $userId, string $subject, string $content): void
+    {
+        $con = $this->getConnection();
+        $r = $this->executeStatement($con, "INSERT INTO blog_entries (user_id, subject, content) VALUES (?, ?, ?)",
+            function ($s) use ($userId, $subject, $content) {
+                $s->bind_param("iss", $userId, $subject, $content);
+            });
+        
+        $r->close();
+        $con->close();
+    }
+
+    public function searchUsersByDisplayName(string $searchTerm): array
+    {
+        $con = $this->getConnection();
+        $r = $this->executeStatement($con, "SELECT id, username, display_name, password_hash, created_at FROM users WHERE display_name LIKE ? ORDER BY display_name",
+            function ($s) use ($searchTerm) {
+                $likeSearchTerm = '%' . $searchTerm . '%';
+                $s->bind_param("s", $likeSearchTerm);
+            });
+        
+        $r->bind_result($id, $username, $displayName, $passwordHash, $createdAt);
+        $result = [];
+        
+        while ($r->fetch()) {
+            $result[] = new \Application\Entities\User($id, $username, $passwordHash, $displayName, $createdAt);
+        }
+
+        $r->close();
+        $con->close();
+        return $result;
     }
 } 

@@ -24,6 +24,6 @@ final class SignedInUserQuery
             return null;
         }
 
-        return new \Application\UserData($user->getId(), $user->getUserName());
+        return new \Application\UserData($user->getId(), $user->getUserName(), $user->getDisplayName());
     }
 } 

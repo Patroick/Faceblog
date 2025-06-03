@@ -6,7 +6,7 @@
 <?php else: ?>
     <?php $beginForm('User', 'LogOut', method: 'post', cssClass: 'form-inline'); ?>
     <span class="navbar-text me-2"> 
-        Willkommen, <strong><?php $htmlOut(isset($data['username']) ? $data['username'] : ""); ?></strong>
+        Willkommen, <strong><?php $htmlOut($data->getDisplayName()); ?></strong>
     </span>
     <button class="btn btn-secondary" type="submit">Abmelden</button>
     <?php $endForm(); ?>

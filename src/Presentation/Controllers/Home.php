@@ -16,7 +16,7 @@ final class Home extends \Presentation\MVC\Controller
         
         return $this->view('home', [
             'statistics' => $statistics,
-            'user' => $user !== null ? ['username' => $user->getName()] : null,
+            'user' => $user,
         ]);
     }
 } 

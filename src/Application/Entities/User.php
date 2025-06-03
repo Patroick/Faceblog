@@ -7,7 +7,9 @@ final class User
     public function __construct(
         private int $id,
         private string $username,
-        private string $passwordHash
+        private string $passwordHash,
+        private string $displayName,
+        private string $createdAt
     ) {}
 
     public function getId(): int
@@ -23,5 +25,15 @@ final class User
     public function getPasswordHash(): string
     {
         return $this->passwordHash;
+    }
+
+    public function getDisplayName(): string
+    {
+        return $this->displayName;
+    }
+
+    public function getCreatedAt(): string
+    {
+        return $this->createdAt;
     }
 } 
