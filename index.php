@@ -13,17 +13,28 @@ $sp = new \ServiceProvider(); // root namespace else it search in no namespace
 
 // --- Application
 $sp->register(\Application\StatisticsQuery::class);
+$sp->register(\Application\SignInCommand::class);
+$sp->register(\Application\SignOutCommand::class);
+$sp->register(\Application\SignedInUserQuery::class);
+
+// --- Services
+$sp->register(\Application\Services\UserService::class);
 
 // --- Presentation
 $sp->register(\Presentation\MVC\MVC::class, implementation: function() { return new \Presentation\MVC\MVC(); });
 $sp->register(\Presentation\Controllers\Home::class);
+$sp->register(\Presentation\Controllers\User::class);
 
 // --- Infrastructure
 $sp->register(\Infrastructure\DatabaseRepository::class, implementation: function() { 
     return new \Infrastructure\DatabaseRepository('localhost', 'root', '', 'faceblog'); 
 });
 
+$sp->register(\Infrastructure\Session::class, isSingleton: true);
+
 $sp->register(\Application\Interfaces\StatisticsRepository::class, implementation: \Infrastructure\DatabaseRepository::class);
+$sp->register(\Application\Interfaces\UserRepository::class, implementation: \Infrastructure\DatabaseRepository::class);
+$sp->register(\Application\Interfaces\Session::class, implementation: \Infrastructure\Session::class);
 
 // TODO: handle request
 $sp->resolve(\Presentation\MVC\MVC::class)

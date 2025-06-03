@@ -2,23 +2,21 @@
 
 namespace Presentation\Controllers;
 
-use Application\StatisticsQuery;
-use Presentation\MVC\ActionResult;
-use Presentation\MVC\Controller;
-
-final class Home extends Controller
+final class Home extends \Presentation\MVC\Controller
 {
     public function __construct(
-        private StatisticsQuery $statisticsQuery
+        private \Application\StatisticsQuery $statisticsQuery,
+        private \Application\SignedInUserQuery $signedInUserQuery,
     ) {}
 
-    public function GET_Index(): ActionResult
+    public function GET_Index(): \Presentation\MVC\ActionResult
     {
         $statistics = $this->statisticsQuery->execute();
+        $user = $this->signedInUserQuery->execute();
         
         return $this->view('home', [
             'statistics' => $statistics,
-            'user' => null, // TODO: implement user authentication later
+            'user' => $user !== null ? ['username' => $user->getName()] : null,
         ]);
     }
 } 

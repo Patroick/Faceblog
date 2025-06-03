@@ -3,8 +3,9 @@
 namespace Infrastructure;
 
 use Application\Interfaces\StatisticsRepository;
+use Application\Interfaces\UserRepository;
 
-final class DatabaseRepository implements StatisticsRepository
+final class DatabaseRepository implements StatisticsRepository, UserRepository
 {
     public function __construct(
         private string $server,
@@ -46,37 +47,109 @@ final class DatabaseRepository implements StatisticsRepository
 
     public function getTotalUserCount(): int
     {
-        $connection = $this->getConnection();
-        $result = $this->executeQuery($connection, "SELECT COUNT(*) as count FROM users");
-        $row = $result->fetch_assoc();
-        $connection->close();
-        return (int)$row['count'];
+        $con = $this->getConnection();
+        $r = $this->executeStatement($con, "SELECT COUNT(*) as count FROM users", function($s) {});
+        
+        $r->bind_result($count);
+        $result = 0;
+        
+        if ($r->fetch()) {
+            $result = (int)$count;
+        }
+
+        $r->close();
+        $con->close();
+        return $result;
     }
 
     public function getTotalBlogEntriesCount(): int
     {
-        $connection = $this->getConnection();
-        $result = $this->executeQuery($connection, "SELECT COUNT(*) as count FROM blog_entries");
-        $row = $result->fetch_assoc();
-        $connection->close();
-        return (int)$row['count'];
+        $con = $this->getConnection();
+        $r = $this->executeStatement($con, "SELECT COUNT(*) as count FROM blog_entries", function($s) {});
+        
+        $r->bind_result($count);
+        $result = 0;
+        
+        if ($r->fetch()) {
+            $result = (int)$count;
+        }
+
+        $r->close();
+        $con->close();
+        return $result;
     }
 
     public function getRecentBlogEntriesCount(): int
     {
-        $connection = $this->getConnection();
-        $result = $this->executeQuery($connection, "SELECT COUNT(*) as count FROM blog_entries WHERE created_at >= DATE_SUB(NOW(), INTERVAL 24 HOUR)");
-        $row = $result->fetch_assoc();
-        $connection->close();
-        return (int)$row['count'];
+        $con = $this->getConnection();
+        $r = $this->executeStatement($con, "SELECT COUNT(*) as count FROM blog_entries WHERE created_at >= DATE_SUB(NOW(), INTERVAL 24 HOUR)", function($s) {});
+        
+        $r->bind_result($count);
+        $result = 0;
+        
+        if ($r->fetch()) {
+            $result = (int)$count;
+        }
+
+        $r->close();
+        $con->close();
+        return $result;
     }
 
     public function getLastPostDate(): ?string
     {
-        $connection = $this->getConnection();
-        $result = $this->executeQuery($connection, "SELECT MAX(created_at) as last_date FROM blog_entries");
-        $row = $result->fetch_assoc();
-        $connection->close();
-        return $row['last_date'];
+        $con = $this->getConnection();
+        $r = $this->executeStatement($con, "SELECT MAX(created_at) as last_date FROM blog_entries", function($s) {});
+        
+        $r->bind_result($lastDate);
+        $result = null;
+        
+        if ($r->fetch()) {
+            $result = $lastDate;
+        }
+
+        $r->close();
+        $con->close();
+        return $result;
+    }
+
+    public function getUser(int $userId): ?\Application\Entities\User
+    {
+        $con = $this->getConnection();
+        $r = $this->executeStatement($con, "SELECT id, username, password_hash FROM users WHERE id = ?",
+            function ($s) use ($userId) {
+                $s->bind_param("i", $userId);
+            });
+        
+        $r->bind_result($id, $username, $passwordHash);
+        $res = null;
+        
+        if ($r->fetch()) {
+            $res = new \Application\Entities\User($id, $username, $passwordHash);
+        }
+
+        $r->close();
+        $con->close();
+        return $res;
+    }
+
+    public function getUserByUserName(string $userName): ?\Application\Entities\User
+    {
+        $con = $this->getConnection();
+        $r = $this->executeStatement($con, "SELECT id, username, password_hash FROM users WHERE username = ?",
+            function ($s) use ($userName) {
+                $s->bind_param("s", $userName);
+            });
+        
+        $r->bind_result($id, $username, $passwordHash);
+        $res = null;
+        
+        if ($r->fetch()) {
+            $res = new \Application\Entities\User($id, $username, $passwordHash);
+        }
+
+        $r->close();
+        $con->close();
+        return $res;
     }
 } 
