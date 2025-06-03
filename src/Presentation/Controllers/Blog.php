@@ -9,6 +9,8 @@ final class Blog extends \Presentation\MVC\Controller
         private \Application\CreateBlogEntryCommand $createBlogEntryCommand,
         private \Application\SignedInUserQuery $signedInUserQuery,
         private \Application\UserBlogQuery $userBlogQuery,
+        private \Application\ToggleLikeCommand $toggleLikeCommand,
+        private \Application\DeleteBlogEntryCommand $deleteBlogEntryCommand,
     ) {}
 
     public function GET_Index(): \Presentation\MVC\ActionResult
@@ -19,6 +21,7 @@ final class Blog extends \Presentation\MVC\Controller
         return $this->view('blog/index', [
             'user' => $user,
             'blogEntries' => $blogEntries,
+            'returnUrl' => $this->getRequestUri(),
         ]);
     }
 
@@ -32,7 +35,29 @@ final class Blog extends \Presentation\MVC\Controller
             'user' => $currentUser,
             'blogUser' => $result['user'] ?? null,
             'blogEntries' => $result['blogEntries'] ?? [],
+            'returnUrl' => $this->getRequestUri(),
         ]);
+    }
+
+    public function POST_ToggleLike(): \Presentation\MVC\ActionResult
+    {
+        $blogEntryId = (int)$this->getParam('id');
+        $this->toggleLikeCommand->execute($blogEntryId);
+        
+        $returnUrl = $this->getParam('returnUrl');
+        if ($returnUrl) {
+            return $this->redirectToUri($returnUrl);
+        }
+        
+        return $this->redirect('Blog', 'Index');
+    }
+
+    public function POST_Delete(): \Presentation\MVC\ActionResult
+    {
+        $blogEntryId = (int)$this->getParam('id');
+        $this->deleteBlogEntryCommand->execute($blogEntryId);
+        
+        return $this->redirect('Blog', 'Index');
     }
 
     public function GET_Create(): \Presentation\MVC\ActionResult

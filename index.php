@@ -21,6 +21,8 @@ $sp->register(\Application\MyBlogQuery::class);
 $sp->register(\Application\CreateBlogEntryCommand::class);
 $sp->register(\Application\PeopleQuery::class);
 $sp->register(\Application\UserBlogQuery::class);
+$sp->register(\Application\ToggleLikeCommand::class);
+$sp->register(\Application\DeleteBlogEntryCommand::class);
 
 // --- Services
 $sp->register(\Application\Services\UserService::class);

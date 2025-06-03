@@ -16,6 +16,18 @@ final class MyBlogQuery
             return [];
         }
 
-        return $this->blogRepository->getBlogEntriesByUserId($userId);
+        $blogEntries = $this->blogRepository->getBlogEntriesByUserId($userId);
+        $result = [];
+
+        foreach ($blogEntries as $entry) {
+            $result[] = [
+                'entry' => $entry,
+                'likeCount' => $this->blogRepository->getLikeCount($entry->getId()),
+                'userLiked' => $this->blogRepository->hasUserLiked($userId, $entry->getId()),
+                'likedBy' => $this->blogRepository->getUsersWhoLiked($entry->getId())
+            ];
+        }
+
+        return $result;
     }
 } 
