@@ -12,13 +12,13 @@
     </div>
     
     <div class="mb-3">
-        <label for="password" class="form-label">Passwort</label>
-        <input type="password" class="form-control" id="password" name="password" required>
-    </div>
-    
-    <div class="mb-3">
         <label for="displayName" class="form-label">Anzeigename</label>
         <input type="text" class="form-control" id="displayName" name="displayName" value="<?php $htmlOut($data['displayName'] ?? ''); ?>" required>
+    </div>
+
+    <div class="mb-3">
+        <label for="password" class="form-label">Passwort</label>
+        <input type="password" class="form-control" id="password" name="password" required>
     </div>
     
     <button type="submit" class="btn btn-primary">Registrieren</button>

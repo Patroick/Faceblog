@@ -1,4 +1,6 @@
-<?php $render('partial/header', $data); ?>
+<?php
+$render('partial/header', $data);
+?>
 
 <div class="row">
     <div class="col-12">

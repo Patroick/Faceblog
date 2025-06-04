@@ -13,7 +13,6 @@ final class SignInCommand
     {
         $this->userService->signOut();
         $user = $this->userRepository->getUserByUserName($userName);
-        // Todo implement sign in
         if ($user !== null && password_verify($password, $user->getPasswordHash())) {
             $this->userService->signIn($user->getId());
             return true;
