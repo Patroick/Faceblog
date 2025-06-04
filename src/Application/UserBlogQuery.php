@@ -25,7 +25,7 @@ final class UserBlogQuery
             $result[] = [
                 'entry' => $entry,
                 'likeCount' => $this->blogRepository->getLikeCount($entry->getId()),
-                'userLiked' => $currentUserId ? $this->blogRepository->hasUserLiked($currentUserId, $entry->getId()) : false,
+                'userLiked' => $currentUserId && $this->blogRepository->hasUserLiked($currentUserId, $entry->getId()),
                 'likedBy' => $this->blogRepository->getUsersWhoLiked($entry->getId())
             ];
         }

@@ -23,16 +23,6 @@ final class DatabaseRepository implements StatisticsRepository, UserRepository, 
         return $con;
     }
 
-    private function executeQuery(\mysqli $connection,string $query)
-    {
-        $result = $connection->query($query);
-        if (!$result) {
-            die("Error in query '$query' :" . $connection->error);
-        }
-        return $result;
-
-    }
-
     private function executeStatement(\mysqli $connection,string $query, callable $bindFunc)
     {
         $statement = $connection->prepare($query);

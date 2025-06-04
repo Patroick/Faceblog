@@ -22,6 +22,9 @@ final class CreateBlogEntryCommand
         }
 
         $userId = $this->userService->getUserId();
+        if ($userId === null) {
+            $errors[] = 'Du musst angemeldet sein';
+        }
 
         if (empty($errors)) {
             $this->blogRepository->addBlogEntry($userId, $subject, $content);

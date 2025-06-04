@@ -12,6 +12,9 @@ final class DeleteBlogEntryCommand
     public function execute(int $blogEntryId): bool
     {
         $userId = $this->userService->getUserId();
+        if ($userId === null) {
+            return false;
+        }
         return $this->blogRepository->deleteBlogEntry($blogEntryId, $userId);
     }
 } 
